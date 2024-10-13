@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package io.confluent.developer.iq;
+
+option java_multiple_files = true;
+option java_package = "io.confluent.developer.proto";
+option java_outer_classname = "QueryProtos";
+
+import "google/protobuf/struct.proto";
+
+message HostInfoProto {
+  string host = 1;
+  int32 port = 2;
+}
+
+message KeyQueryMetadataProto {
+    int32 partition = 1;
+    HostInfoProto activeHost = 2;
+    repeated HostInfoProto standbyHosts = 3;
+}
+
+message KeyQueryRequestProto {
+  string symbol = 1;
+  KeyQueryMetadataProto keyQueryMetadata = 2;
+}
+
+message MultKeyQueryRequestProto {
+  repeated string symbols = 1;
+  KeyQueryMetadataProto keyQueryMetadata = 2;
+}
+
+message RangeQueryRequestProto {
+  string lower = 1;
+  string upper = 2;
+  string predicate = 3;
+  repeated int32 partitions = 4;
+}
+
+message StockTransaction {
+  string symbol = 1;
+  bool is_buy = 2;
+  double amount = 3;
+  int32 number_shares = 4;
+}
+
+message StockTransactionAggregationProto {
+   string symbol = 1;
+   double buys = 2;
+   double sells = 3;
+   int32 number_shares = 4;
+}
+
+message QueryResponseProto {
+  string error_message = 1;
+  repeated string execution_info = 2;
+  string host_info = 3;
+  repeated string json_results = 4;
+  repeated StockTransactionAggregationProto aggregations = 5;
+}
+message Empty {}
+
+service InternalQuery {
+  rpc KeyQueryService (KeyQueryRequestProto) returns (QueryResponseProto);
+
+  rpc MultiKeyQueryService (MultKeyQueryRequestProto) returns (QueryResponseProto);
+
+  rpc RangeQueryService (RangeQueryRequestProto) returns (QueryResponseProto);
+}
